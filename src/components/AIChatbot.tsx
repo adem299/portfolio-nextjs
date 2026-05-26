@@ -127,8 +127,8 @@ export default function AIChatbot() {
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-white flex items-center gap-1.5">
-                    AI Assistant
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+                    Ade Assistant
                     <Sparkles className="w-3.5 h-3.5 text-accent-cyan" />
                   </h3>
                   <p className="text-xs text-foreground-muted">

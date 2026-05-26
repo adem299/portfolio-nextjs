@@ -105,6 +105,31 @@ body {
   background-clip: text;
 }
 
+.text-shine {
+  background: linear-gradient(
+    120deg,
+    var(--accent-blue) 0%,
+    var(--accent-cyan) 25%,
+    #ffffff 50%,
+    var(--accent-cyan) 75%,
+    var(--accent-blue) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textShine 4s ease-in-out infinite;
+}
+
+@keyframes textShine {
+  0% {
+    background-position: -200% center;
+  }
+  30%, 100% {
+    background-position: 200% center;
+  }
+}
+
 .text-gradient-subtle {
   background: linear-gradient(135deg, #e4e4e7 0%, #a1a1aa 100%);
   -webkit-background-clip: text;
@@ -227,8 +252,7 @@ body {
   .bg-emerald-500 *,
   .bg-green-500 *,
   .bg-red-500 *,
-  .bg-amber-500 *,
-  .chat-msg-user *
+  .bg-amber-500 *
 ) {
   color: var(--foreground);
 }

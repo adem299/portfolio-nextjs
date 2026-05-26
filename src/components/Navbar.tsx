@@ -63,8 +63,7 @@ export default function Navbar() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <span className="text-gradient">Ade</span>
-            <span className="text-foreground-muted ml-1">Mulyana</span>
+            <span className="text-shine">Ade Mulyana</span>
           </motion.button>
 
           {/* Desktop Nav */}
