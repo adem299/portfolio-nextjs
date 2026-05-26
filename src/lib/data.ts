@@ -62,7 +62,7 @@ export const experiences: Experience[] = [
   {
     company: "Akar Inti Teknologi",
     role: "Software Engineer Intern",
-    period: "Nov 2025 – Present",
+    period: "Nov 2025 – May 2026",
     location: "Jakarta, Indonesia",
     highlights: [
       "Developed backend ERP modules using Spring Boot & PostgreSQL",
@@ -71,7 +71,7 @@ export const experiences: Experience[] = [
       "Collaborated with frontend & infrastructure teams",
       "Worked on scalable and maintainable systems",
     ],
-    tech: ["Spring Boot", "PostgreSQL", "Redis", "Java"],
+    tech: ["Spring Boot", "PostgreSQL", "Redis", "Java", "Docker"],
   },
   {
     company: "Universitas Pendidikan Indonesia",
@@ -97,7 +97,7 @@ export const experiences: Experience[] = [
       "Developed 55+ FastAPI endpoints",
       "Managed full-stack integration",
     ],
-    tech: ["Flutter", "FastAPI", "PostgreSQL"],
+    tech: ["Flutter", "FastAPI", "MySQL", "Docker"],
   },
   {
     company: "Universitas Pendidikan Indonesia",
