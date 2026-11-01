@@ -31,7 +31,7 @@ export default function HeroSection() {
 
             <Reveal immediate delay={0.08}>
               <h1 className="mt-7 text-[2.75rem] leading-[0.98] font-semibold tracking-[-0.045em] text-balance sm:text-6xl lg:text-7xl">
-                I build backend systems <span className="text-accent">that don&apos;t fall over.</span>
+                I turn messy problems{" "}<span className="text-accent">into stable systems.</span>
               </h1>
             </Reveal>
 
