@@ -7,7 +7,7 @@ import EducationSection from "@/components/sections/EducationSection";
 import SkillsSection from "@/components/sections/SkillsSection";
 import AchievementsSection from "@/components/sections/AchievementsSection";
 import ContactSection from "@/components/sections/ContactSection";
-import AIChatbot from "@/components/AIChatbot";
+import PortfolioAssistant from "@/components/PortfolioAssistant";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -25,7 +25,7 @@ export default function Home() {
         <ContactSection />
       </main>
       <Footer />
-      <AIChatbot />
+      <PortfolioAssistant />
     </>
   );
 }

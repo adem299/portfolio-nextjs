@@ -1,205 +1,102 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Send, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Reveal from "@/components/Reveal";
+import Section from "@/components/Section";
 import SocialLinks from "@/components/SocialLinks";
-import SectionHeading from "@/components/SectionHeading";
 import { useContactForm } from "@/hooks/useContactForm";
+import type { ContactFormData } from "@/lib/services/contactService";
+import { CONTACT_LIMITS } from "@/lib/services/validator";
+
+const fields: { name: keyof ContactFormData; label: string; type: string; placeholder: string }[] = [
+  { name: "name", label: "name", type: "text", placeholder: "Your name" },
+  { name: "email", label: "email", type: "email", placeholder: "you@company.com" },
+  { name: "message", label: "message", type: "textarea", placeholder: "Tell me about the role, project, or idea…" },
+];
 
 export default function ContactSection() {
-  const {
-    formData,
-    setFormData,
-    handleSubmit,
-    isLoading,
-    isSubmitted,
-    error,
-    retryCountdown,
-  } = useContactForm();
-
+  const { formData, updateField, handleSubmit, isLoading, isSubmitted, error, retryCountdown } = useContactForm();
   const isDisabled = isLoading || isSubmitted || retryCountdown > 0;
 
-  return (
-    <section id="contact" className="section-padding relative">
-      {/* Background accents */}
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-accent-blue/[0.04] blur-[120px]" />
-      <div className="absolute top-0 left-0 w-[400px] h-[400px] rounded-full bg-accent-purple/[0.03] blur-[100px]" />
-
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeading
-          title="Get In Touch"
-          subtitle="Let's build something impactful together"
-        />
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
-          {/* Contact Info */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5 }}
-            className="lg:col-span-2 space-y-6"
-          >
-            <div className="glass rounded-2xl p-6 md:p-8">
-              <div className="flex items-center gap-2 mb-4">
-                <Sparkles className="w-5 h-5 text-accent-purple" />
-                <h3 className="text-lg font-semibold text-white">
-                  Let&apos;s Connect
-                </h3>
-              </div>
-              <p className="text-sm text-foreground-muted leading-relaxed mb-6">
-                I&apos;m always open to discussing new projects, creative ideas,
-                or opportunities to be part of something meaningful.
-              </p>
-
-              <SocialLinks variant="labeled" />
-            </div>
-          </motion.div>
-
-          {/* Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="lg:col-span-3"
-          >
-            <form
-              onSubmit={handleSubmit}
-              className="glass rounded-2xl p-6 md:p-8 space-y-5"
-            >
-              <div>
-                <label
-                  htmlFor="contact-name"
-                  className="block text-sm font-medium text-foreground-muted mb-2"
-                >
-                  Name
-                </label>
-                <input
-                  id="contact-name"
-                  type="text"
-                  required
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white text-sm placeholder-foreground-muted/50 focus:outline-none focus:border-accent-purple/40 focus:ring-1 focus:ring-accent-purple/20 transition-all"
-                  placeholder="Your name"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="contact-email"
-                  className="block text-sm font-medium text-foreground-muted mb-2"
-                >
-                  Email
-                </label>
-                <input
-                  id="contact-email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, email: e.target.value }))
-                  }
-                  className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white text-sm placeholder-foreground-muted/50 focus:outline-none focus:border-accent-purple/40 focus:ring-1 focus:ring-accent-purple/20 transition-all"
-                  placeholder="your@email.com"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="contact-message"
-                  className="block text-sm font-medium text-foreground-muted mb-2"
-                >
-                  Message
-                </label>
-                <textarea
-                  id="contact-message"
-                  required
-                  rows={4}
-                  value={formData.message}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      message: e.target.value,
-                    }))
-                  }
-                  className="w-full px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.08] text-white text-sm placeholder-foreground-muted/50 focus:outline-none focus:border-accent-purple/40 focus:ring-1 focus:ring-accent-purple/20 transition-all resize-none"
-                  placeholder="Tell me about your project or opportunity..."
-                />
-              </div>
-
-              {error && (
-                <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <SubmitButton
-                isLoading={isLoading}
-                isSubmitted={isSubmitted}
-                isDisabled={isDisabled}
-                retryCountdown={retryCountdown}
-              />
-            </form>
-          </motion.div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// ===== Sub-component =====
-
-interface SubmitButtonProps {
-  isLoading: boolean;
-  isSubmitted: boolean;
-  isDisabled: boolean;
-  retryCountdown: number;
-}
-
-function SubmitButton({
-  isLoading,
-  isSubmitted,
-  isDisabled,
-  retryCountdown,
-}: SubmitButtonProps) {
-  const buttonClass = isSubmitted
-    ? "bg-green-500/20 border border-green-500/30 text-green-300"
+  const buttonLabel = isSubmitted
+    ? "200 OK · message sent"
     : isLoading
-      ? "bg-blue-600/50 border border-blue-500/30 text-blue-100"
+      ? "sending…"
       : retryCountdown > 0
-        ? "bg-red-600/20 border border-red-500/30 text-red-300 cursor-not-allowed"
-        : "bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40";
+        ? `429 · retry in ${retryCountdown}s`
+        : "Send message";
 
   return (
-    <motion.button
-      type="submit"
-      whileHover={!isDisabled ? { scale: 1.02 } : {}}
-      whileTap={!isDisabled ? { scale: 0.98 } : {}}
-      disabled={isDisabled}
-      className={`w-full py-3.5 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer ${buttonClass}`}
+    <Section
+      id="contact"
+      label="Contact"
+      title="Let's build something that holds up."
+      intro="Open to backend, full-stack, and AI engineering roles, and always happy to talk about an interesting project."
     >
-      {isSubmitted ? (
-        <>
-          <span>Message Sent!</span>
-          <span className="text-lg">✓</span>
-        </>
-      ) : isLoading ? (
-        <>
-          <span>Sending...</span>
-          <span className="inline-block animate-spin">⏳</span>
-        </>
-      ) : retryCountdown > 0 ? (
-        <span>Wait {retryCountdown}s</span>
-      ) : (
-        <>
-          <span>Send Message</span>
-          <Send className="w-4 h-4" />
-        </>
-      )}
-    </motion.button>
+      <div className="space-y-12">
+        <Reveal>
+          <form onSubmit={handleSubmit} className="ticks border border-line bg-surface">
+            <div className="flex items-center justify-between border-b border-line px-5 py-3">
+              <span className="label-mono">
+                <span className="text-accent">POST</span> /api/contact
+              </span>
+              <span className="label-mono hidden sm:inline">application/json</span>
+            </div>
+
+            {fields.map((field) => {
+              const id = `contact-${field.name}`;
+              const common = {
+                id,
+                required: true,
+                maxLength: CONTACT_LIMITS[field.name],
+                value: formData[field.name],
+                placeholder: field.placeholder,
+                onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+                  updateField(field.name, e.target.value),
+                className:
+                  "w-full bg-transparent text-[15px] text-foreground placeholder:text-foreground-muted/50 focus:outline-none",
+              };
+              return (
+                <div
+                  key={field.name}
+                  className="border-b border-line px-5 py-4 transition-colors focus-within:bg-surface-2"
+                >
+                  <label htmlFor={id} className="label-mono mb-2 block">
+                    <span className="text-accent">&quot;</span>
+                    {field.label}
+                    <span className="text-accent">&quot;</span>:
+                  </label>
+                  {field.type === "textarea" ? (
+                    <textarea rows={4} {...common} className={`${common.className} resize-none`} />
+                  ) : (
+                    <input type={field.type} {...common} />
+                  )}
+                </div>
+              );
+            })}
+
+            {error && (
+              <p role="alert" className="border-b border-line px-5 py-3 font-mono text-xs text-red-500">
+                error: {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={isDisabled}
+              className="group flex w-full items-center justify-between bg-accent px-5 py-4 font-mono text-sm text-accent-foreground transition-colors hover:bg-foreground hover:text-background disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-foreground-muted cursor-pointer"
+            >
+              {buttonLabel}
+              {!isDisabled && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
+            </button>
+          </form>
+        </Reveal>
+
+        <Reveal delay={0.1}>
+          <p className="label-mono mb-4">Or reach me directly</p>
+          <SocialLinks variant="list" />
+        </Reveal>
+      </div>
+    </Section>
   );
 }

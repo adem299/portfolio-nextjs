@@ -1,111 +1,62 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { Mail } from "lucide-react";
-import { GitHubIcon, LinkedInIcon } from "@/components/icons";
+import { ArrowUpRight } from "lucide-react";
 import { socialLinks } from "@/lib/data";
+import { cn } from "@/lib/utils";
 
-type SocialLinksVariant = "icon-only" | "labeled";
-
-interface SocialLinksProps {
-  /** "icon-only" for compact icon buttons, "labeled" for icon + text links */
-  variant?: SocialLinksVariant;
-  className?: string;
-}
-
-interface SocialLinkItem {
-  href: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  hoverBorderColor: string;
-}
-
-const socialLinkItems: SocialLinkItem[] = [
+const items = [
+  { key: "email", label: "Email", value: socialLinks.email, href: `mailto:${socialLinks.email}` },
+  { key: "github", label: "GitHub", value: socialLinks.github.replace("https://", ""), href: socialLinks.github },
   {
-    href: `mailto:${socialLinks.email}`,
-    label: socialLinks.email,
-    icon: Mail,
-    hoverBorderColor: "group-hover:border-accent-blue/30",
-  },
-  {
-    href: socialLinks.github,
-    label: "GitHub",
-    icon: GitHubIcon,
-    hoverBorderColor: "group-hover:border-accent-purple/30",
-  },
-  {
-    href: socialLinks.linkedin,
+    key: "linkedin",
     label: "LinkedIn",
-    icon: LinkedInIcon,
-    hoverBorderColor: "group-hover:border-accent-cyan/30",
+    value: socialLinks.linkedin.replace(/^https:\/\/(www\.)?/, "").replace(/\/$/, ""),
+    href: socialLinks.linkedin,
   },
 ];
 
-/**
- * Reusable social links component — consolidates links from Hero, Contact, and Footer.
- * Supports two rendering variants to accommodate different visual contexts.
- */
-export default function SocialLinks({
-  variant = "icon-only",
-  className = "",
-}: Readonly<SocialLinksProps>) {
-  if (variant === "labeled") {
-    return <LabeledLinks className={className} />;
+const externalProps = (href: string) =>
+  href.startsWith("mailto:") ? {} : { target: "_blank", rel: "noopener noreferrer" };
+
+interface SocialLinksProps {
+  /** "inline": compact mono links. "list": label/value rows, like a spec table. */
+  variant?: "inline" | "list";
+  className?: string;
+}
+
+export default function SocialLinks({ variant = "inline", className }: Readonly<SocialLinksProps>) {
+  if (variant === "list") {
+    return (
+      <ul className={cn("border-t border-line font-mono text-sm", className)}>
+        {items.map((item) => (
+          <li key={item.key}>
+            <a
+              href={item.href}
+              {...externalProps(item.href)}
+              className="group grid grid-cols-[6rem_1fr_auto] items-center gap-3 border-b border-line py-3.5 transition-colors hover:text-accent"
+            >
+              <span className="label-mono">{item.label}</span>
+              <span className="truncate">{item.value}</span>
+              <ArrowUpRight className="h-4 w-4 text-foreground-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
+            </a>
+          </li>
+        ))}
+      </ul>
+    );
   }
 
-  return <IconLinks className={className} />;
-}
-
-function IconLinks({ className }: Readonly<{ className: string }>) {
   return (
-    <div className={`flex items-center gap-5 ${className}`}>
-      {socialLinkItems.map((link) => {
-        const isExternal = !link.href.startsWith("mailto:");
-        const Icon = link.icon;
-        return (
-          <motion.a
-            key={link.label}
-            href={link.href}
-            {...(isExternal
-              ? { target: "_blank", rel: "noopener noreferrer" }
-              : {})}
-            whileHover={{ scale: 1.1, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="p-3 rounded-xl glass hover:bg-white/[0.06] text-foreground-muted hover:text-white transition-colors duration-200"
-            aria-label={link.label}
-          >
-            <Icon className="w-5 h-5" />
-          </motion.a>
-        );
-      })}
-    </div>
-  );
-}
-
-function LabeledLinks({ className }: Readonly<{ className: string }>) {
-  return (
-    <div className={`space-y-4 ${className}`}>
-      {socialLinkItems.map((link) => {
-        const isExternal = !link.href.startsWith("mailto:");
-        const Icon = link.icon;
-        return (
+    <ul className={cn("flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-xs", className)}>
+      {items.map((item) => (
+        <li key={item.key}>
           <a
-            key={link.label}
-            href={link.href}
-            {...(isExternal
-              ? { target: "_blank", rel: "noopener noreferrer" }
-              : {})}
-            className="flex items-center gap-3 text-sm text-foreground-muted hover:text-white transition-colors group"
+            href={item.href}
+            {...externalProps(item.href)}
+            className="inline-flex items-center gap-1 text-foreground-muted transition-colors hover:text-accent"
           >
-            <div
-              className={`p-2.5 rounded-lg bg-white/[0.04] border border-white/[0.08] ${link.hoverBorderColor} transition-colors`}
-            >
-              <Icon className="w-4 h-4" />
-            </div>
-            {link.label}
+            {item.label.toLowerCase()}
+            <ArrowUpRight className="h-3 w-3" />
           </a>
-        );
-      })}
-    </div>
+        </li>
+      ))}
+    </ul>
   );
 }

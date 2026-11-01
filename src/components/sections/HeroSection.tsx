@@ -1,143 +1,98 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { ArrowDown, ChevronRight, Download, Mail } from "lucide-react";
+import { ArrowRight, Download } from "lucide-react";
+import Reveal from "@/components/Reveal";
 import SocialLinks from "@/components/SocialLinks";
+import { achievements, experiences, profile, projects } from "@/lib/data";
+import { pad2 } from "@/lib/format";
+
+const stats = [
+  { value: pad2(experiences.length), label: "Roles held" },
+  { value: pad2(projects.length), label: "Featured builds" },
+  { value: profile.gpa.value, label: `GPA / ${profile.gpa.scale}` },
+  { value: pad2(achievements.length), label: "Certs & awards" },
+];
 
 export default function HeroSection() {
   return (
-    <section
-      id="hero"
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-    >
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-grid" />
+    <section id="hero" className="relative overflow-hidden pt-16">
+      {/* Drafting grid, faded toward the edges */}
+      <div
+        aria-hidden
+        className="bg-blueprint pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_75%_65%_at_30%_35%,#000_35%,transparent_100%)]"
+      />
 
-      {/* Floating Glow Orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-accent-blue/[0.07] blur-[120px] animate-float" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-accent-purple/[0.08] blur-[100px] animate-float-slow" />
-      <div className="absolute top-1/2 right-1/3 w-[300px] h-[300px] rounded-full bg-accent-cyan/[0.05] blur-[80px] animate-pulse-glow" />
+      <div className="shell relative">
+        <div className="grid gap-14 py-20 md:py-28 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-7">
+            <Reveal immediate>
+              <p className="label-mono">
+                <span className="text-accent">{"//"}</span>{" "}{profile.headline}
+              </p>
+            </Reveal>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        {/* Status Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass mb-8"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-          </span>
-          <span className="text-sm text-foreground-muted">
-            Open to opportunities
-          </span>
-        </motion.div>
+            <Reveal immediate delay={0.08}>
+              <h1 className="mt-7 text-[2.75rem] leading-[0.98] font-semibold tracking-[-0.045em] text-balance sm:text-6xl lg:text-7xl">
+                I build backend systems <span className="text-accent">that don&apos;t fall over.</span>
+              </h1>
+            </Reveal>
 
-        {/* Name */}
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4"
-        >
-          <span className="text-white">Hi, I&apos;m </span>
-          <span className="text-gradient">Ade Mulyana</span>
-        </motion.h1>
+            <Reveal immediate delay={0.16}>
+              <p className="mt-8 max-w-xl text-lg leading-relaxed text-foreground-muted">{profile.intro}</p>
+            </Reveal>
 
-        {/* Role */}
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.45 }}
-          className="text-lg sm:text-xl md:text-2xl text-foreground-muted font-medium mb-6"
-        >
-          Software Engineer | Backend & Full-Stack Engineer
-        </motion.p>
+            <Reveal immediate delay={0.24} className="mt-10 flex flex-wrap items-center gap-3">
+              <a href="#projects" className="btn btn-primary group">
+                View selected work
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              </a>
+              <a href="/cv-ade-mulyana.pdf" download="CV_Ade_Mulyana.pdf" className="btn btn-outline">
+                Download CV
+                <Download className="h-4 w-4" />
+              </a>
+            </Reveal>
 
-        {/* Tagline */}
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="text-base md:text-lg text-foreground-muted/80 max-w-2xl mx-auto mb-10 leading-relaxed"
-        >
-          Full-Stack Engineer specializing in scalable backend systems and modern software development.
-        </motion.p>
+            <Reveal immediate delay={0.3}>
+              <SocialLinks className="mt-10" />
+            </Reveal>
+          </div>
 
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.75 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
-        >
-          <button
-            onClick={() =>
-              document
-                .getElementById("projects")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="group relative px-8 py-3.5 rounded-xl font-medium text-sm bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
-          >
-            <span className="flex items-center gap-2">
-              View Projects
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </span>
-          </button>
-          <a
-            href="/cv-ade-mulyana.pdf"
-            download="CV_Ade_Mulyana.pdf"
-            className="group px-8 py-3.5 rounded-xl font-medium text-sm glass hover:bg-white/[0.06] text-white border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
-          >
-            <span className="flex items-center gap-2">
-              Download CV
-              <Download className="w-4.5 h-4.5 group-hover:translate-y-0.5 transition-transform" />
-            </span>
-          </a>
-          <button
-            onClick={() =>
-              document
-                .getElementById("contact")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-            className="group px-8 py-3.5 rounded-xl font-medium text-sm glass hover:bg-white/[0.06] text-white border border-white/10 hover:border-white/20 transition-all duration-300 hover:scale-[1.02] cursor-pointer"
-          >
-            <span className="flex items-center gap-2">
-              Contact Me
-              <Mail className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-            </span>
-          </button>
-        </motion.div>
+          {/* Spec sheet */}
+          <Reveal immediate delay={0.2} className="lg:col-span-5 lg:pt-10">
+            <div className="ticks border border-line bg-surface/70 backdrop-blur-[2px]">
+              <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
+                <span className="label-mono">spec_sheet.md</span>
+                <span className="label-mono">rev. {new Date().getFullYear()}</span>
+              </div>
+              <dl className="divide-y divide-line font-mono text-[13px]">
+                {profile.spec.map(([key, value]) => (
+                  <div key={key} className="grid grid-cols-[6.5rem_1fr] gap-3 px-4 py-3">
+                    <dt className="text-foreground-muted">{key}</dt>
+                    <dd>{value}</dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="flex items-center gap-2.5 border-t border-line px-4 py-3 font-mono text-[13px]">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                </span>
+                status: open to new roles
+              </div>
+            </div>
+          </Reveal>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.9 }}
-          className="flex items-center justify-center"
-        >
-          <SocialLinks variant="icon-only" />
-        </motion.div>
+        {/* Stats strip: gap-px over a line-colored background draws the dividers */}
+        <Reveal immediate delay={0.35}>
+          <dl className="grid grid-cols-2 gap-px border-y border-line bg-line md:grid-cols-4">
+            {stats.map((stat) => (
+              <div key={stat.label} className="flex flex-col-reverse bg-background px-4 py-6 md:px-6">
+                <dt className="label-mono mt-2">{stat.label}</dt>
+                <dd className="text-3xl font-semibold tracking-tight tabular-nums md:text-4xl">{stat.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
       </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 0.6 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="flex flex-col items-center gap-2 text-foreground-muted/50"
-        >
-          <span className="text-xs tracking-widest uppercase">Scroll</span>
-          <ArrowDown className="w-4 h-4" />
-        </motion.div>
-      </motion.div>
     </section>
   );
 }

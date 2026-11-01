@@ -1,18 +1,19 @@
-import { Heart } from "lucide-react";
+import { ArrowUp } from "lucide-react";
 import SocialLinks from "@/components/SocialLinks";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-background-secondary/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-sm text-foreground-muted">
-            <span>© {new Date().getFullYear()} Ade Mulyana. Built with</span>
-            <Heart className="w-3.5 h-3.5 text-accent-purple fill-accent-purple" />
-            <span>& Next.js</span>
-          </div>
-
-          <SocialLinks variant="icon-only" />
+    <footer className="border-t border-line">
+      <div className="shell flex flex-col gap-6 py-10 font-mono text-xs text-foreground-muted md:flex-row md:items-center md:justify-between">
+        <p>
+          © {new Date().getFullYear()} Ade Mulyana <span className="text-accent">·</span>{" "}Designed &amp; built in
+          Indonesia with Next.js
+        </p>
+        <div className="flex items-center gap-8">
+          <SocialLinks />
+          <a href="#hero" className="inline-flex items-center gap-1 transition-colors hover:text-accent">
+            top <ArrowUp className="h-3 w-3" />
+          </a>
         </div>
       </div>
     </footer>

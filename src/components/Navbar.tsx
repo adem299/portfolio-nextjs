@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { navLinks } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/useTheme";
 import ThemeToggle from "@/components/ThemeToggle";
+import { pad2 } from "@/lib/format";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -18,139 +18,128 @@ export default function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
 
-      // Determine active section
       const sections = navLinks.map((link) => link.href.replace("#", ""));
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const element = document.getElementById(sections[i]);
-        if (element) {
-          const rect = element.getBoundingClientRect();
-          if (rect.top <= 100) {
-            setActiveSection(sections[i]);
-            break;
-          }
-        }
+      let current = "";
+      for (const id of sections) {
+        const element = document.getElementById(id);
+        if (element && element.getBoundingClientRect().top <= 120) current = id;
       }
+      setActiveSection(current);
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleNavClick = (href: string) => {
-    setIsMobileOpen(false);
-    const element = document.querySelector(href);
-    element?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
-    <motion.header
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+    <header
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled
-          ? "glass-strong shadow-lg shadow-black/20"
-          : "bg-transparent"
+        "fixed inset-x-0 top-0 z-50 border-b transition-colors duration-300",
+        isScrolled || isMobileOpen
+          ? "border-line bg-background/85 backdrop-blur-md"
+          : "border-transparent bg-transparent"
       )}
     >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <motion.button
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="text-lg md:text-xl font-bold tracking-tight cursor-pointer"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+      <nav className="shell flex h-16 items-center justify-between gap-6">
+        <a href="#hero" className="font-mono text-sm font-medium tracking-tight" aria-label="Back to top">
+          ade<span className="text-accent">.</span>mulyana
+        </a>
+
+        <ul className="hidden items-center gap-0.5 font-mono text-[12.5px] lg:flex">
+          {navLinks.map((link, i) => {
+            const isActive = activeSection === link.href.slice(1);
+            return (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  aria-current={isActive ? "true" : undefined}
+                  className={cn(
+                    "relative block px-2.5 py-1.5 transition-colors",
+                    isActive ? "text-foreground" : "text-foreground-muted hover:text-foreground"
+                  )}
+                >
+                  <span className={cn("mr-1", isActive ? "text-accent" : "text-foreground-muted/60")}>{pad2(i + 1)}</span>
+                  {link.label.toLowerCase()}
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-active"
+                      className="absolute inset-x-2.5 -bottom-[13px] h-px bg-accent"
+                      transition={{ type: "spring", stiffness: 380, damping: 32 }}
+                    />
+                  )}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="flex items-center gap-3">
+          <LocalClock />
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
+          <button
+            onClick={() => setIsMobileOpen((open) => !open)}
+            className="flex h-9 items-center border border-line px-3 font-mono text-xs text-foreground-muted transition-colors hover:border-accent hover:text-accent lg:hidden cursor-pointer"
+            aria-expanded={isMobileOpen}
+            aria-controls="mobile-menu"
           >
-            <span className="text-shine">Ade Mulyana</span>
-          </motion.button>
-
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-1">
-              {navLinks.map((link) => {
-                const isActive = activeSection === link.href.replace("#", "");
-                return (
-                  <button
-                    key={link.href}
-                    onClick={() => handleNavClick(link.href)}
-                    className={cn(
-                      "relative px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200 cursor-pointer",
-                      isActive
-                        ? "text-white"
-                        : "text-foreground-muted hover:text-white"
-                    )}
-                  >
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeNav"
-                        className="absolute inset-0 bg-white/[0.06] rounded-lg border border-white/10"
-                        transition={{
-                          type: "spring",
-                          stiffness: 380,
-                          damping: 30,
-                        }}
-                      />
-                    )}
-                    <span className="relative z-10">{link.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <ThemeToggle theme={theme} onToggle={toggleTheme} />
-          </div>
-
-          {/* Mobile Toggle */}
-          <div className="flex items-center gap-2 md:hidden">
-            <ThemeToggle
-              theme={theme}
-              onToggle={toggleTheme}
-              keyPrefix="mobile-"
-            />
-            <button
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="p-2 rounded-lg glass cursor-pointer"
-              aria-label="Toggle menu"
-            >
-              {isMobileOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
-            </button>
-          </div>
+            {isMobileOpen ? "close" : "menu"}
+          </button>
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileOpen && (
-          <motion.div
+          <motion.ul
+            id="mobile-menu"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="md:hidden glass-strong border-t border-white/5"
+            transition={{ duration: 0.25 }}
+            className="shell overflow-hidden border-t border-line font-mono text-sm lg:hidden"
           >
-            <div className="px-4 py-4 space-y-1">
-              {navLinks.map((link, index) => (
-                <motion.button
-                  key={link.href}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  onClick={() => handleNavClick(link.href)}
-                  className="block w-full text-left px-4 py-3 text-sm font-medium text-foreground-muted hover:text-white hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+            {navLinks.map((link, i) => (
+              <li key={link.href} className="border-b border-line last:border-b-0">
+                <a
+                  href={link.href}
+                  onClick={() => setIsMobileOpen(false)}
+                  className="flex items-center gap-3 py-3.5 text-foreground-muted transition-colors hover:text-foreground"
                 >
-                  {link.label}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
+                  <span className="text-accent">{pad2(i + 1)}</span>
+                  {link.label.toLowerCase()}
+                </a>
+              </li>
+            ))}
+          </motion.ul>
         )}
       </AnimatePresence>
-    </motion.header>
+    </header>
+  );
+}
+
+// Live local time in Indonesia (WIB). Rendered only after mount to avoid hydration mismatch.
+const wibFormatter = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Jakarta",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+function LocalClock() {
+  const [time, setTime] = useState<string | null>(null);
+
+  useEffect(() => {
+    const tick = () => setTime(wibFormatter.format(new Date()));
+    const first = setTimeout(tick, 0);
+    const interval = setInterval(tick, 15_000);
+    return () => {
+      clearTimeout(first);
+      clearInterval(interval);
+    };
+  }, []);
+
+  return (
+    <span className="hidden font-mono text-xs text-foreground-muted tabular-nums sm:inline" title="Local time in Indonesia">
+      WIB {time ?? "--:--"}
+    </span>
   );
 }

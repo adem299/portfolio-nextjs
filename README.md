@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ade Mulyana — Portfolio
 
-## Getting Started
+Personal portfolio built with Next.js 16, React 19, TypeScript, and Tailwind CSS v4, in an "engineering blueprint" visual style.
 
-First, run the development server:
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local` with the variables listed under [Environment variables](#environment-variables) before using the contact form.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Script | What it does |
+|---|---|
+| `npm run dev` | Development server |
+| `npm run build` / `npm start` | Production build / serve |
+| `npm run lint` | ESLint |
+| `npm test` | Vitest unit tests |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Environment variables
 
-## Learn More
+| Name | Purpose |
+|---|---|
+| `RESEND_API_KEY` | Sends contact form emails through [Resend](https://resend.com) |
+| `CONTACT_EMAIL` | Inbox that receives contact form messages |
 
-To learn more about Next.js, take a look at the following resources:
+## Updating content
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+All portfolio content lives in **`src/lib/data.ts`**: profile copy, experience, projects (including case studies and system-flow diagrams), education, skills, achievements, and links. The portfolio assistant's answers are generated from the same file. Project screenshots go in `public/<project>/`, and the CV is `public/cv-ade-mulyana.pdf`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project structure
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/              layout, page, and /api/contact route
+  components/       Section, Reveal, Navbar, modal, assistant
+    sections/       one component per page section
+  hooks/            useContactForm, useTheme
+  lib/
+    data.ts         content (single source of truth)
+    assistant.ts    keyword-based portfolio assistant
+    services/       contact client, validation, rate limiting, email template
+```

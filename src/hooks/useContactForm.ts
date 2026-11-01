@@ -1,92 +1,53 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import {
-  sendContactMessage,
-  type ContactFormData,
-} from "@/lib/services/contactService";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { sendContactMessage, type ContactFormData } from "@/lib/services/contactService";
 import { SUCCESS_DISPLAY_MS } from "@/lib/constants";
 
-interface UseContactFormReturn {
-  formData: ContactFormData;
-  setFormData: React.Dispatch<React.SetStateAction<ContactFormData>>;
-  handleSubmit: (e: React.SubmitEvent) => Promise<void>;
-  isLoading: boolean;
-  isSubmitted: boolean;
-  error: string | null;
-  retryCountdown: number;
-}
+const INITIAL_FORM_DATA: ContactFormData = { name: "", email: "", message: "" };
 
-const INITIAL_FORM_DATA: ContactFormData = {
-  name: "",
-  email: "",
-  message: "",
-};
-
-/**
- * Custom hook encapsulating contact form state, submission, and error handling.
- */
-export function useContactForm(): UseContactFormReturn {
+/** Contact form state, submission, and rate-limit countdown. */
+export function useContactForm() {
   const [formData, setFormData] = useState<ContactFormData>(INITIAL_FORM_DATA);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryCountdown, setRetryCountdown] = useState(0);
+  const successTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Countdown timer for rate limiting
   useEffect(() => {
     if (retryCountdown <= 0) return;
-
-    const interval = setInterval(() => {
-      setRetryCountdown((prev) => prev - 1);
-    }, 1000);
-
-    return () => clearInterval(interval);
+    const timer = setTimeout(() => setRetryCountdown((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
   }, [retryCountdown]);
 
+  useEffect(() => () => clearTimeout(successTimer.current), []);
+
+  const updateField = useCallback((field: keyof ContactFormData, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  }, []);
+
   const handleSubmit = useCallback(
-    async (e: React.SubmitEvent) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       setIsLoading(true);
       setError(null);
 
-      try {
-        const result = await sendContactMessage(formData);
+      const result = await sendContactMessage(formData);
+      setIsLoading(false);
 
-        if (!result.success) {
-          if (result.retryAfter) {
-            setRetryCountdown(result.retryAfter);
-          }
-          // Strip retry info from display message
-          const displayError = (result.error || "Something went wrong").replace(
-            /\s*Please try again in \d+ seconds\.?/i,
-            ""
-          );
-          throw new Error(displayError);
-        }
-
-        setIsSubmitted(true);
-        setFormData(INITIAL_FORM_DATA);
-        setTimeout(() => setIsSubmitted(false), SUCCESS_DISPLAY_MS);
-      } catch (err) {
-        const errorMsg =
-          err instanceof Error ? err.message : "Something went wrong";
-        setError(errorMsg);
-        console.error("Form submission error:", err);
-      } finally {
-        setIsLoading(false);
+      if (!result.success) {
+        setError(result.error);
+        if (result.retryAfter) setRetryCountdown(result.retryAfter);
+        return;
       }
+
+      setIsSubmitted(true);
+      setFormData(INITIAL_FORM_DATA);
+      successTimer.current = setTimeout(() => setIsSubmitted(false), SUCCESS_DISPLAY_MS);
     },
     [formData]
   );
 
-  return {
-    formData,
-    setFormData,
-    handleSubmit,
-    isLoading,
-    isSubmitted,
-    error,
-    retryCountdown,
-  };
+  return { formData, updateField, handleSubmit, isLoading, isSubmitted, error, retryCountdown };
 }

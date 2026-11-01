@@ -1,115 +1,95 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { ExternalLink, Image as ImageIcon } from "lucide-react";
-import SectionHeading from "@/components/SectionHeading";
-import { projects } from "@/lib/data";
+import { useCallback, useState } from "react";
 import Image from "next/image";
+import { ArrowUpRight, FileText } from "lucide-react";
+import Reveal from "@/components/Reveal";
+import Section from "@/components/Section";
+import FlowDiagram from "@/components/FlowDiagram";
+import ProjectDetailModal from "@/components/ProjectDetailModal";
+import { projects } from "@/lib/data";
+import { pad2, projectCode } from "@/lib/format";
 
 export default function ProjectsSection() {
+  const [selected, setSelected] = useState<number | null>(null);
+  // Stable so the modal's open/close effect doesn't re-run on every render
+  const close = useCallback(() => setSelected(null), []);
+
   return (
-    <section id="projects" className="section-padding relative">
-      {/* Background accent */}
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-accent-purple/[0.04] blur-[120px]" />
+    <Section
+      id="projects"
+      label="Selected work"
+      layout="stacked"
+      title="Systems I've designed and built."
+      intro="Each one started as a real problem. Open a case study for the problem, architecture, and use cases."
+    >
+      <div className="border-b border-line">
+        {projects.map((project, i) => (
+          <Reveal key={project.title} className="group grid gap-8 border-t border-line py-10 lg:grid-cols-12 lg:gap-12 lg:py-14">
+            <div className="lg:col-span-6">
+              <div className="ticks relative aspect-[16/10] overflow-hidden border border-line bg-surface">
+                {project.image && (
+                  <Image
+                    src={project.image}
+                    alt={`${project.title} screenshot`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 560px"
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  />
+                )}
+                <span className="label-mono absolute left-3 top-3 bg-background/85 px-2 py-1 text-foreground backdrop-blur-sm">
+                  fig. {pad2(i + 1)}
+                </span>
+              </div>
+            </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeading
-          title="Projects"
-          subtitle="Showcasing innovative solutions and technical expertise"
-        />
+            <div className="flex flex-col lg:col-span-6">
+              <p className="label-mono">
+                <span className="text-accent">{projectCode(i)}</span> · {project.tech.join(" / ")}
+              </p>
+              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] md:text-3xl">{project.title}</h3>
+              <p className="mt-4 leading-relaxed text-foreground-muted">{project.description}</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project, index) => (
-            <motion.div
-              key={project.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: index * 0.15 }}
-            >
-              <motion.div
-                whileHover={{ y: -6 }}
-                transition={{ duration: 0.3 }}
-                className={`flex flex-col h-full glass rounded-2xl overflow-hidden bg-gradient-to-br ${project.gradient} transition-all duration-300 group`}
-              >
-                {/* Image Container */}
-                <div className={`h-48 bg-gradient-to-br ${project.gradient} relative overflow-hidden flex items-center justify-center`}>
-                  {project.image ? (
-                    <Image
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 text-foreground-muted/50">
-                      <ImageIcon className="w-8 h-8" />
-                      <span className="text-xs font-medium">Project Image</span>
-                    </div>
-                  )}
+              {project.flow && (
+                <div className="mt-6">
+                  <p className="label-mono mb-2.5">System flow</p>
+                  <FlowDiagram steps={project.flow} />
                 </div>
+              )}
 
-                {/* Content Body */}
-                <div className="flex-grow flex flex-col p-6 md:p-8">
-                  {/* Title & Description */}
-                  <div className="mb-4">
-                    <h3 className="text-lg md:text-xl font-semibold text-white mb-2 group-hover:text-accent-purple transition-colors duration-300">
-                      {project.title}
-                    </h3>
-                    <p className="text-sm text-foreground-muted leading-relaxed">
-                      {project.description}
-                    </p>
-                  </div>
+              <ul className="mt-6 grid grid-cols-1 gap-x-6 gap-y-2 text-sm text-foreground-muted sm:grid-cols-2">
+                {project.features.map((feature) => (
+                  <li key={feature} className="flex gap-2.5">
+                    <span aria-hidden className="font-mono text-accent">+</span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
 
-                  {/* Features */}
-                  <div className="mb-5 flex-grow">
-                    <ul className="space-y-2">
-                      {project.features.map((feature, i) => (
-                        <li
-                          key={i}
-                          className="flex items-start gap-2 text-sm text-foreground-muted"
-                        >
-                          <span className="w-1.5 h-1.5 rounded-full bg-accent-cyan shrink-0 mt-1.5" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* Tech Stack Tags */}
-                  <div className="flex flex-wrap gap-1.5 mb-5">
-                    {project.tech.map((tech) => (
-                      <span
-                        key={tech}
-                        className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-white/[0.03] border border-white/[0.06] text-foreground-muted/95 hover:text-white hover:bg-white/[0.06] transition-colors duration-200"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Footer - Explore Project Link */}
-                  {project.link && (
-                    <div className="pt-4 border-t border-white/5 mt-auto">
-                      <a
-                        href={project.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-semibold bg-white/[0.03] border border-white/10 text-foreground-muted hover:text-white hover:bg-accent-blue/10 hover:border-accent-blue/30 transition-all duration-300 cursor-pointer group/link"
-                        title="View Project"
-                      >
-                        <span>Explore Project</span>
-                        <ExternalLink className="w-3.5 h-3.5 group-hover/link:text-accent-blue group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-all duration-300" />
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            </motion.div>
-          ))}
-        </div>
+              <div className="mt-8 flex flex-wrap gap-3 lg:mt-auto lg:pt-8">
+                {project.detail && (
+                  <button onClick={() => setSelected(i)} className="btn btn-primary">
+                    <FileText className="h-4 w-4" />
+                    Read case study
+                  </button>
+                )}
+                {project.link && (
+                  <a href={project.link} target="_blank" rel="noopener noreferrer" className="btn btn-outline">
+                    {project.detail?.links[0]?.label ?? "Open project"}
+                    <ArrowUpRight className="h-4 w-4" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </Reveal>
+        ))}
       </div>
-    </section>
+
+      <ProjectDetailModal
+        project={selected === null ? null : projects[selected]}
+        code={selected === null ? "" : projectCode(selected)}
+        onClose={close}
+      />
+    </Section>
   );
 }

@@ -1,4 +1,4 @@
-// Contact form service — abstracts API communication (DIP)
+// Client-side contact API wrapper: hides fetch/HTTP details from the UI.
 
 export interface ContactFormData {
   name: string;
@@ -6,43 +6,31 @@ export interface ContactFormData {
   message: string;
 }
 
-export interface ContactResult {
-  success: boolean;
-  error?: string;
-  retryAfter?: number;
-}
+export type ContactResult =
+  | { success: true }
+  | { success: false; error: string; retryAfter?: number };
 
 const CONTACT_API_ENDPOINT = "/api/contact";
 
-/**
- * Send a contact form message via the API.
- * Returns a structured result instead of throwing on known errors.
- */
-export async function sendContactMessage(
-  data: ContactFormData
-): Promise<ContactResult> {
-  const response = await fetch(CONTACT_API_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
-
-  const body = await response.json();
-
-  if (!response.ok) {
-    let retryAfter: number | undefined;
-
-    if (response.status === 429) {
-      const match = body.error?.match(/(\d+)\s*seconds/);
-      retryAfter = match ? Number.parseInt(match[1]) : 300;
-    }
-
-    return {
-      success: false,
-      error: body.error || "Failed to send message",
-      retryAfter,
-    };
+/** Send a contact message. Known failures come back as a result, not a thrown error. */
+export async function sendContactMessage(data: ContactFormData): Promise<ContactResult> {
+  let response: Response;
+  try {
+    response = await fetch(CONTACT_API_ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+  } catch {
+    return { success: false, error: "Network error. Check your connection and try again." };
   }
 
-  return { success: true };
+  if (response.ok) return { success: true };
+
+  const body: { error?: string; retryAfter?: number } = await response.json().catch(() => ({}));
+  return {
+    success: false,
+    error: body.error || "Failed to send message",
+    retryAfter: typeof body.retryAfter === "number" ? body.retryAfter : undefined,
+  };
 }

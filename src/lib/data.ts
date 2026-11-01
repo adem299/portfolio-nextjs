@@ -1,11 +1,4 @@
-import {
-  Code2,
-  Globe,
-  Database,
-  Brain,
-  GraduationCap,
-  BookOpen,
-} from "lucide-react";
+import { pad2 } from "@/lib/format";
 
 // ===== TYPES =====
 export interface Experience {
@@ -17,14 +10,26 @@ export interface Experience {
   tech: string[];
 }
 
+export interface ProjectDetail {
+  problem: string;
+  solution: string;
+  useCases: { actor: string; action: string }[];
+  architecture: string[];
+  results: { label: string; value: string }[];
+  screenshots: { src: string; caption: string }[];
+  links: { label: string; url: string; type: "github" | "demo" | "paper" | "other" }[];
+}
+
 export interface Project {
   title: string;
   description: string;
   features: string[];
   tech: string[];
+  /** Short system-flow labels rendered as a diagram */
+  flow?: string[];
   image?: string;
-  gradient: string;
   link?: string;
+  detail?: ProjectDetail;
 }
 
 export interface Education {
@@ -32,12 +37,10 @@ export interface Education {
   degree: string;
   period: string;
   details: string[];
-  icon: typeof Code2;
 }
 
 export interface SkillCategory {
   name: string;
-  icon: typeof Code2;
   skills: string[];
 }
 
@@ -46,7 +49,40 @@ export interface Achievement {
   type: "certification" | "competition";
 }
 
+// ===== PROFILE =====
+// Personal facts and copy used by the hero, about section, and assistant.
+export const profile = {
+  name: "Ade Mulyana",
+  role: "Software Engineer",
+  headline: "Software Engineer — Backend & AI",
+  intro:
+    "I'm Ade Mulyana. I design services with Java and Spring Boot on PostgreSQL and Redis, and I wire LLMs into products people actually use, from ERP modules to RAG-powered research.",
+  gpa: { value: "3.86", scale: "4.00", honors: "Cum Laude" },
+  spec: [
+    ["role", "Software Engineer"],
+    ["focus", "Backend · AI integration"],
+    ["core", "Java · Spring Boot · PostgreSQL · Redis"],
+    ["also", "Next.js · FastAPI · LangChain · Docker"],
+    ["education", "B.S. Computer Science, cum laude"],
+    ["based", "Indonesia (UTC+7)"],
+  ] as [string, string][],
+  about: [
+    "I'm a software engineer with a strong focus on backend engineering and building scalable systems. I like hard problems and clean, maintainable architectures.",
+    "With hands-on industry experience in Spring Boot, PostgreSQL, Redis, and Next.js, I've contributed to ERP systems, AI-powered platforms, and full-stack applications that serve real users.",
+    "My interests span cloud-native systems, AI integration, and software architecture. I keep learning and keep up with modern engineering practice.",
+  ],
+  focusAreas: [
+    "Backend engineering",
+    "Scalable systems",
+    "AI integration",
+    "Cloud-native systems",
+    "Software architecture",
+    "Clean, maintainable code",
+  ],
+};
+
 // ===== NAVIGATION =====
+// Order here defines section numbering ("01 / About") everywhere.
 export const navLinks = [
   { label: "About", href: "#about" },
   { label: "Experience", href: "#experience" },
@@ -56,6 +92,13 @@ export const navLinks = [
   { label: "Achievements", href: "#achievements" },
   { label: "Contact", href: "#contact" },
 ];
+
+/** Two-digit number of a section, derived from its position in navLinks. */
+export function sectionNumber(id: string): string {
+  const index = navLinks.findIndex((link) => link.href === `#${id}`);
+  if (index === -1) throw new Error(`Section "${id}" is missing from navLinks`);
+  return pad2(index + 1);
+}
 
 // ===== EXPERIENCES =====
 export const experiences: Experience[] = [
@@ -126,10 +169,35 @@ export const projects: Project[] = [
       "Budget prediction",
       "Responsive UI",
     ],
-    tech: ["React.js", "Generative AI"],
+    tech: ["React.js", "Leaflet.js", "Generative AI"],
+    flow: ["React + Leaflet", "REST API", "Geo query", "Gen AI"],
     image: "/kosthub/kosthub-project-1.png",
-    gradient: "from-blue-500/20 to-cyan-500/20",
     link: "https://canva.link/v9w9dpok6sbahis",
+    detail: {
+      problem:
+        "Students moving to a new city struggle to find boarding houses that fit their budget and location. Listings are scattered across many platforms, which makes the search slow and inefficient.",
+      solution:
+        "KostHub brings everything into one WebGIS platform: search boarding houses on an interactive map, get AI recommendations tailored to user preferences, and see an automatic monthly budget estimate.",
+      useCases: [
+        { actor: "Student", action: "Find boarding houses near campus on an interactive map, filtered by radius, price, and facilities" },
+        { actor: "Student", action: "Get personalized AI recommendations based on preferences and search history" },
+        { actor: "Student", action: "Estimate a monthly budget from the desired location and facilities" },
+        { actor: "Owner", action: "List a property with detailed location, facilities, and pricing" },
+      ],
+      architecture: [
+        "React.js frontend with Leaflet.js for interactive map rendering",
+        "Generative AI API powering the recommendation engine and budget prediction",
+        "RESTful backend API for boarding house and user data",
+        "Geospatial queries for location- and radius-based search",
+      ],
+      results: [{ label: "Competition", value: "Finalist, MAPID WebGIS 2025" }],
+      screenshots: [
+        { src: "/kosthub/kosthub-project-1.png", caption: "Main dashboard with interactive map" },
+      ],
+      links: [
+        { label: "Presentation", url: "https://canva.link/v9w9dpok6sbahis", type: "other" },
+      ],
+    },
   },
   {
     title: "Toeflify",
@@ -142,9 +210,34 @@ export const projects: Project[] = [
       "Real-time AI integration",
     ],
     tech: ["Next.js", "Generative AI"],
+    flow: ["Next.js", "Gen AI API", "CEFR rubric", "Feedback"],
     image: "/toeflify/toeflify-project-1.png",
-    gradient: "from-purple-500/20 to-pink-500/20",
     link: "https://github.com/TOEFLify",
+    detail: {
+      problem:
+        "Indonesian students need affordable TOEFL practice with personal feedback. Conventional courses are expensive and don't offer accurate automated essay scoring against the CEFR standard.",
+      solution:
+        "Toeflify is an AI-powered TOEFL learning platform that scores essays automatically against the CEFR framework, gives constructive feedback, and generates adaptive practice questions.",
+      useCases: [
+        { actor: "Student", action: "Practice with TOEFL questions generated by AI to match their level" },
+        { actor: "Student", action: "Write an essay and get an automatic CEFR-rubric score with improvement feedback" },
+        { actor: "Lecturer", action: "Monitor student progress and review AI assessment reports" },
+        { actor: "Researcher", action: "Use the platform as a research instrument to validate AI models for language assessment" },
+      ],
+      architecture: [
+        "Next.js frontend with server-side rendering",
+        "Generative AI API integration for essay assessment and question generation",
+        "CEFR rubric engine to standardize language scoring",
+        "Real-time feedback pipeline with streamed AI responses",
+      ],
+      results: [],
+      screenshots: [
+        { src: "/toeflify/toeflify-project-1.png", caption: "Toeflify home page" },
+      ],
+      links: [
+        { label: "GitHub", url: "https://github.com/TOEFLify", type: "github" },
+      ],
+    },
   },
   {
     title: "AI NPC Dialogue System",
@@ -157,9 +250,34 @@ export const projects: Project[] = [
       "Dynamic RPG dialogue",
     ],
     tech: ["Python", "LangChain", "FAISS", "LLaMA 3"],
+    flow: ["Player input", "LangChain", "FAISS retrieval", "LLaMA 3"],
     image: "/ai-npc-dialogue/ai-npc-dialogue-project-1.png",
-    gradient: "from-emerald-500/20 to-teal-500/20",
     link: "https://repository.upi.edu/138064/",
+    detail: {
+      problem:
+        "NPCs in traditional RPGs have static, repetitive dialogue that breaks immersion. Developers need dynamic dialogue without hand-writing thousands of scripted lines.",
+      solution:
+        "A RAG-based dialogue system combining LLaMA 3 as the language model, LangChain for orchestration, and FAISS for vector retrieval, so NPCs respond in context and stay true to their lore and character.",
+      useCases: [
+        { actor: "Player", action: "Talk to NPCs with free-form input and get in-character, contextual replies" },
+        { actor: "Player", action: "Ask NPCs about quests, lore, or the game world and get consistent answers" },
+        { actor: "Game dev", action: "Define NPC personality and lore through reference documents instead of manual scripting" },
+        { actor: "Researcher", action: "Evaluate dialogue quality with coherence, relevance, and character-consistency metrics" },
+      ],
+      architecture: [
+        "LLaMA 3 as the base language model for natural dialogue generation",
+        "LangChain as the orchestration framework for prompt chaining and retrieval",
+        "FAISS vector database storing and retrieving lore and character context",
+        "Python backend with FastAPI serving the model and API endpoints",
+      ],
+      results: [],
+      screenshots: [
+        { src: "/ai-npc-dialogue/ai-npc-dialogue-project-1.png", caption: "NPC dialogue system demo" },
+      ],
+      links: [
+        { label: "UPI Repository", url: "https://repository.upi.edu/138064/", type: "paper" },
+      ],
+    },
   },
 ];
 
@@ -170,10 +288,9 @@ export const education: Education[] = [
     degree: "B.S. Computer Science",
     period: "2021 – 2025",
     details: [
-      "GPA: 3.86 / 4.00 (CumLaude)",
+      `GPA: ${profile.gpa.value} / ${profile.gpa.scale} (${profile.gpa.honors})`,
       "Thesis: AI-driven NPC dialogue system using LLaMA 3, LangChain, and FAISS",
     ],
-    icon: GraduationCap,
   },
   {
     institution: "Bangkit Academy",
@@ -184,7 +301,6 @@ export const education: Education[] = [
       "REST API integration",
       "AI-powered capstone project",
     ],
-    icon: BookOpen,
   },
 ];
 
@@ -192,22 +308,18 @@ export const education: Education[] = [
 export const skillCategories: SkillCategory[] = [
   {
     name: "Backend",
-    icon: Code2,
     skills: ["Java", "Spring Boot", "FastAPI", "REST API", "Redis"],
   },
   {
     name: "Frontend",
-    icon: Globe,
     skills: ["React.js", "Next.js", "Flutter", "Tailwind CSS"],
   },
   {
     name: "Database",
-    icon: Database,
     skills: ["PostgreSQL", "MySQL", "Redis"],
   },
   {
     name: "AI & Tools",
-    icon: Brain,
     skills: [
       "LangChain",
       "Generative AI",
@@ -252,51 +364,5 @@ export const achievements: Achievement[] = [
 export const socialLinks = {
   github: "https://github.com/adem299",
   linkedin: "https://www.linkedin.com/in/ademulyn/",
-  email: "mulyanaade30@email.com",
+  email: "mulyanaade30@gmail.com",
 };
-
-// ===== TECH STACK HIGHLIGHTS (About section) =====
-export interface TechHighlight {
-  name: string;
-  colorClass: string;
-}
-
-const DEFAULT_TECH_COLOR =
-  "from-gray-500/20 to-gray-600/20 border-gray-500/30 text-gray-300";
-
-const techColorMap: Record<string, string> = {
-  Java: "from-orange-500/20 to-red-500/20 border-orange-500/30 text-orange-300",
-  "Spring Boot":
-    "from-green-500/20 to-emerald-500/20 border-green-500/30 text-green-300",
-  "Next.js": "from-white/10 to-gray-500/10 border-white/20 text-gray-200",
-  "React.js":
-    "from-cyan-500/20 to-blue-500/20 border-cyan-500/30 text-cyan-300",
-  PostgreSQL:
-    "from-blue-500/20 to-indigo-500/20 border-blue-500/30 text-blue-300",
-  Redis: "from-red-500/20 to-rose-500/20 border-red-500/30 text-red-300",
-  Docker: "from-blue-400/20 to-sky-500/20 border-blue-400/30 text-blue-300",
-  FastAPI:
-    "from-teal-500/20 to-emerald-500/20 border-teal-500/30 text-teal-300",
-  Flutter: "from-sky-500/20 to-blue-500/20 border-sky-500/30 text-sky-300",
-  "Generative AI":
-    "from-blue-400/20 to-slate-300/20 border-blue-400/30 text-blue-300",
-  LangChain:
-    "from-emerald-500/20 to-green-500/20 border-emerald-500/30 text-emerald-300",
-};
-
-export const techStackHighlights: TechHighlight[] = [
-  "Java",
-  "Spring Boot",
-  "Next.js",
-  "React.js",
-  "PostgreSQL",
-  "Redis",
-  "Docker",
-  "FastAPI",
-  "Flutter",
-  "Generative AI",
-  "LangChain",
-].map((name) => ({
-  name,
-  colorClass: techColorMap[name] || DEFAULT_TECH_COLOR,
-}));

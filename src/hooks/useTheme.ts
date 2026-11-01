@@ -1,33 +1,37 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 type Theme = "dark" | "light";
 
-export function useTheme() {
-  const [theme, setTheme] = useState<Theme>("dark");
+// The inline script in layout.tsx applies the saved theme to <html> before hydration,
+// so the DOM class is the source of truth; this hook just reads and flips it.
+const listeners = new Set<() => void>();
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const initialTheme = savedTheme || "dark";
-    setTheme(initialTheme);
-    applyThemeToDOM(initialTheme);
-  }, []);
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+const getSnapshot = (): Theme =>
+  document.documentElement.classList.contains("light") ? "light" : "dark";
+const getServerSnapshot = (): Theme => "dark";
+
+export function useTheme() {
+  const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const toggleTheme = useCallback(() => {
     const nextTheme: Theme = theme === "dark" ? "light" : "dark";
-    setTheme(nextTheme);
-    localStorage.setItem("theme", nextTheme);
-    applyThemeToDOM(nextTheme);
+    document.documentElement.classList.toggle("light", nextTheme === "light");
+    try {
+      localStorage.setItem("theme", nextTheme);
+    } catch {
+      // Storage can be unavailable (private mode); the toggle still works for this visit.
+    }
+    listeners.forEach((listener) => listener());
   }, [theme]);
 
   return { theme, toggleTheme } as const;
-}
-
-function applyThemeToDOM(theme: Theme) {
-  if (theme === "light") {
-    document.documentElement.classList.add("light");
-  } else {
-    document.documentElement.classList.remove("light");
-  }
 }

@@ -1,8 +1,8 @@
 // ===== APPLICATION CONSTANTS =====
 
-// AI Chatbot timing
-export const AI_MIN_DELAY_MS = 600;
-export const AI_RANDOM_DELAY_MS = 800;
+// Portfolio assistant: artificial reply delay so answers feel conversational
+export const REPLY_MIN_DELAY_MS = 600;
+export const REPLY_RANDOM_DELAY_MS = 800;
 
 // Contact form
 export const SUCCESS_DISPLAY_MS = 3000;

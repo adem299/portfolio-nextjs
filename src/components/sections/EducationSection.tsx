@@ -1,68 +1,34 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { GraduationCap } from "lucide-react";
-import SectionHeading from "@/components/SectionHeading";
+import Reveal from "@/components/Reveal";
+import Section from "@/components/Section";
 import { education } from "@/lib/data";
 
 export default function EducationSection() {
   return (
-    <section id="education" className="section-padding relative">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeading
-          title="Education"
-          subtitle="Academic foundation and continuous learning"
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {education.map((edu, index) => {
-            const Icon = edu.icon || GraduationCap;
-            return (
-              <motion.div
-                key={edu.institution}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: index * 0.15 }}
-              >
-                <motion.div
-                  whileHover={{ y: -4 }}
-                  className="h-full glass rounded-2xl p-6 md:p-8 transition-all duration-300 hover:border-white/15"
-                >
-                  {/* Icon */}
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-accent-blue/20 to-accent-purple/20 border border-accent-blue/20 w-fit mb-5">
-                    <Icon className="w-6 h-6 text-accent-blue" />
-                  </div>
-
-                  {/* Info */}
-                  <h3 className="text-lg font-semibold text-white mb-1">
-                    {edu.institution}
-                  </h3>
-                  <p className="text-accent-purple font-medium text-sm mb-1">
-                    {edu.degree}
-                  </p>
-                  <p className="text-xs text-foreground-muted mb-4">
-                    {edu.period}
-                  </p>
-
-                  {/* Details */}
-                  <ul className="space-y-2">
-                    {edu.details.map((detail, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2.5 text-sm text-foreground-muted"
-                      >
-                        <span className="w-1 h-1 rounded-full bg-accent-purple mt-2 shrink-0" />
-                        {detail}
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
-    </section>
+    <Section id="education" label="Education" title="Foundations.">
+      <ol className="border-t border-line">
+        {education.map((edu, i) => (
+          <Reveal
+            as="li"
+            key={edu.institution}
+            delay={i * 0.05}
+            className="grid gap-4 border-b border-line py-8 md:grid-cols-[10.5rem_1fr] md:gap-8"
+          >
+              <p className="font-mono text-xs text-foreground-muted">{edu.period}</p>
+              <div>
+                <h3 className="text-lg font-medium md:text-xl">{edu.degree}</h3>
+                <p className="mt-1 text-foreground-muted">{edu.institution}</p>
+                <ul className="mt-4 space-y-2 text-[15px] text-foreground-muted">
+                  {edu.details.map((detail) => (
+                    <li key={detail} className="flex gap-3">
+                      <span aria-hidden className="mt-[0.7em] h-px w-3 shrink-0 bg-accent" />
+                      {detail}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+          </Reveal>
+        ))}
+      </ol>
+    </Section>
   );
 }

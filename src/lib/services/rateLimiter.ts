@@ -1,51 +1,37 @@
-// In-memory rate limiter — separated from route handler (SRP)
+// In-memory, per-IP rate limiter: one accepted request per window.
+// Note: memory is per server instance, so on serverless hosting this is best-effort only.
 
 import { RATE_LIMIT_WINDOW_MS, CLEANUP_INTERVAL_MS } from "@/lib/constants";
 
 const requestLog = new Map<string, number>();
+let lastCleanup = 0;
 
-export interface RateLimitResult {
-  allowed: boolean;
-  retryAfter?: number;
-}
+export type RateLimitResult = { allowed: true } | { allowed: false; retryAfter: number };
 
-/**
- * Check if a given IP is within the rate limit window.
- * Records the request timestamp if allowed.
- */
-export function checkRateLimit(ip: string): RateLimitResult {
-  const now = Date.now();
+/** Check whether `ip` may send now; records the request when allowed. */
+export function checkRateLimit(ip: string, now: number = Date.now()): RateLimitResult {
+  pruneExpired(now);
+
   const lastRequest = requestLog.get(ip);
-
-  if (!lastRequest) {
-    requestLog.set(ip, now);
-    return { allowed: true };
-  }
-
-  const elapsed = now - lastRequest;
-
-  if (elapsed < RATE_LIMIT_WINDOW_MS) {
-    const retryAfter = Math.ceil((RATE_LIMIT_WINDOW_MS - elapsed) / 1000);
-    return { allowed: false, retryAfter };
+  if (lastRequest !== undefined && now - lastRequest < RATE_LIMIT_WINDOW_MS) {
+    return { allowed: false, retryAfter: Math.ceil((RATE_LIMIT_WINDOW_MS - (now - lastRequest)) / 1000) };
   }
 
   requestLog.set(ip, now);
   return { allowed: true };
 }
 
-/**
- * Remove expired entries from the rate limit store.
- * Should be called periodically to prevent memory leaks.
- */
-export function cleanupExpiredEntries(): void {
-  const cutoff = Date.now() - RATE_LIMIT_WINDOW_MS * 2;
-
-  for (const [ip, timestamp] of requestLog.entries()) {
-    if (timestamp < cutoff) {
-      requestLog.delete(ip);
-    }
+// Lazy cleanup on use instead of a module-level timer, so importing has no side effects.
+function pruneExpired(now: number) {
+  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
+  lastCleanup = now;
+  for (const [ip, timestamp] of requestLog) {
+    if (now - timestamp >= RATE_LIMIT_WINDOW_MS) requestLog.delete(ip);
   }
 }
 
-// Auto-cleanup on module load
-setInterval(cleanupExpiredEntries, CLEANUP_INTERVAL_MS);
+/** Test helper: forget all recorded requests. */
+export function resetRateLimiter() {
+  requestLog.clear();
+  lastCleanup = 0;
+}
